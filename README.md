@@ -10,20 +10,45 @@ Frontend	Jekyll + NGINX	        80
 Backend	    Flask + Redis (server)	8080  
 Database	Redis (client) + PVC    6379  
 
-| Component                              | Status    | Notes                        |
+| Component                              | Port      | Notes                        |
 | -------------------------------------- | --------- | ---------------------------- |
-| **Frontend** (`quote-frontend:jekyll`) | ✅ Running | Jekyll + NGINX               |
-| **Backend** (`quote-backend:csv`)      | ✅ Running | Flask + Redis client         |
-| **Database** (`quote-redis`)           | ✅ Running | Redis server + Docker volume |
+| **Frontend** (`quote-frontend:jekyll`) | ✅ 80     | Jekyll + NGINX               |
+| **Backend** (`quote-backend:csv`)      | ✅ 8080   | Flask + Redis client         |
+| **Database** (`quote-redis`)           | ✅ 6379   | Redis server + Docker volume |
 
 
 🚦 Current Architecture Summary
-
+```
 [ Jekyll + NGINX (quote-frontend) ]
              ↓
      fetch("/quote") → [ Flask backend ]
                               ↓
                     [ Redis server + volume ]
+```
 
+## 1️⃣ Start Redis with Preloaded Quotes
+```
+docker run -d \
+  --name quote-redis \
+  --network quote-net \
+  -v quote-redis-data:/data \
+  database-redis:v01
+```
 
+## 2️⃣ Start Backend
+```
+docker run -d \
+  --name quote-backend \
+  --network quote-net \
+  -p 8080:8080 \
+  quote-backend:csv
+```
 
+## 3️⃣ Start Frontend
+```
+docker run -d \
+  --name quote-frontend \
+  --network quote-net \
+  -p 80:80 \
+  quote-frontend:jekyll
+```
