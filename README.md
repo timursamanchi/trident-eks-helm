@@ -25,3 +25,5 @@ Database	Redis (client) + PVC    6379
                               ↓
                     [ Redis server + volume ]
 
+
+
