@@ -37,7 +37,7 @@ docker run -d \
   --name quote-redis \
   --network quote-net \
   -v quote-redis-data:/data \
-  quote-redis:666
+  quote-redis:777
 ```
 
 ## 2️⃣ Start Backend
@@ -46,7 +46,7 @@ docker run -d \
   --name quote-backend \
   --network quote-net \
   -p 8080:8080 \
-  quote-backend:666
+  quote-backend:777
 ```
 
 ## 3️⃣ Start Frontend
@@ -55,5 +55,5 @@ docker run -d \
   --name quote-frontend \
   --network quote-net \
   -p 80:80 \
-  quote-frontend:666
+  quote-frontend:777
 ```
