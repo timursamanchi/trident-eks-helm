@@ -1,9 +1,9 @@
 ---
 layout: default
-title: "Timur's Quote Page"
+title: "Timur's Quote Page!"
 ---
 
-## Hello All - from Timur's project: AWS ECS cluster - NEW HORIZON!
+## 🌟 Welcome to Timur's Quote Site - Kubernetes - Jekyll 🌟
 
 ### Quote of the day: <span id="quote">Loading...</span>
 
@@ -21,3 +21,7 @@ title: "Timur's Quote Page"
       document.getElementById('timestamp').innerText = new Date().toLocaleString();
     });
 </script>
+## Contact
+
+You can find me on:
+- GitHub: [timursamanchi](https://github.com/timursamanchi)
