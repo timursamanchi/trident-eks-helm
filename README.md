@@ -26,13 +26,18 @@ Database	Redis (client) + PVC    6379
                     [ Redis server + volume ]
 ```
 
+## remove images
+```
+docker rm -f quote-frontend quote-backend quote-redis
+```
+
 ## 1️⃣ Start Redis with Preloaded Quotes
 ```
 docker run -d \
   --name quote-redis \
   --network quote-net \
   -v quote-redis-data:/data \
-  database-redis:v01
+  quote-redis:666
 ```
 
 ## 2️⃣ Start Backend
@@ -41,7 +46,7 @@ docker run -d \
   --name quote-backend \
   --network quote-net \
   -p 8080:8080 \
-  quote-backend:csv
+  quote-backend:666
 ```
 
 ## 3️⃣ Start Frontend
@@ -50,5 +55,5 @@ docker run -d \
   --name quote-frontend \
   --network quote-net \
   -p 80:80 \
-  quote-frontend:jekyll
+  quote-frontend:666
 ```

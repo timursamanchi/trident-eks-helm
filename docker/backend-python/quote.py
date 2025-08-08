@@ -15,8 +15,8 @@ def seed_from_csv():
         with open("quotes.csv", newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
-                key, quote = row
-                r.set(f"quote:{key}", quote)
+                quote, author = row
+                r.set(f"quote:{quote}", f"{quote} — {author}")
 
 @app.route("/quote")
 def get_quote():
