@@ -5,7 +5,7 @@ title: "Timur's Quote Page!"
 
 ## 🌟 Welcome to Timur's Quote Site - Kubernetes - Jekyll 🌟
 
-### Quote of the day: <span id="quote">Loading...</span>
+### Quote of the day: **<span id="quote">Loading...</span>
 
 **Loaded at:** <span id="timestamp">Loading...</span>
 
