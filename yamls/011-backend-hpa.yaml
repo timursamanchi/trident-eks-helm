@@ -1,15 +1,16 @@
+# 010-hpa-backend.yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: quote-frontend-hpa
+  name: quote-backend-hpa
   namespace: quote-app
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: quote-frontend
+    name: quote-backend
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 5
   metrics:
     - type: Resource
       resource:
