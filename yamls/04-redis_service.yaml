@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: quote_redis
-  namespace: quote_app
+  namespace: quote-app
 spec:
   type: ClusterIP
   selector:

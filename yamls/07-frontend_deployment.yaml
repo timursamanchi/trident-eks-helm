@@ -2,19 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: quote-frontend
+  name: quote_frontend
   namespace: quote-app
   labels:
-    app: quote-frontend
+    app: quote_frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: quote-frontend
+      app: quote_frontend
   template:
     metadata:
       labels:
-        app: quote-frontend
+        app: quote_frontend
     spec:
       containers:
         - name: frontend

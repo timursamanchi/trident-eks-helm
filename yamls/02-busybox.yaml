@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: busybox
-  namespace: quote_app
+  namespace: quote-app
 spec:
   containers:
     - name: busybox

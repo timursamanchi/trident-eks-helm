@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: quote_redis
-  namespace: quote_app
+  namespace: quote-app
   labels:
     app: quote_redis
 spec:
