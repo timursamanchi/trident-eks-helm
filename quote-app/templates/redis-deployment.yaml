@@ -1,0 +1,86 @@
+###############################################
+#
+# template/redis-deployment
+#
+###############################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quote-app.fullname" . }}-redis
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "quote-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  replicas: {{ .Values.redis.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "quote-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis
+  template:
+    metadata:
+      labels:
+        {{- include "quote-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - name: redis
+              containerPort: 6379
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: {{ .Values.redis.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.redis.readinessProbe.timeoutSeconds }}
+            periodSeconds: {{ .Values.redis.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.redis.readinessProbe.failureThreshold }}
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: {{ .Values.redis.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.redis.livenessProbe.timeoutSeconds }}
+            periodSeconds: {{ .Values.redis.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.redis.livenessProbe.failureThreshold }}
+          volumeMounts:
+            - name: redis-data
+              mountPath: {{ .Values.redis.persistence.mountPath }}
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.redis.persistence.existingClaim | default (printf "%s-redis-data" (include "quote-app.fullname" .)) }}
+
+###############################################
+#
+# templates/redis-service
+#
+###############################################
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quote-app.fullname" . }}-redis
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "quote-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  type: {{ .Values.redis.service.type }}
+  selector:
+    {{- include "quote-app.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+  ports:
+    - name: redis
+      port: {{ .Values.redis.service.port }}
+      targetPort: {{ .Values.redis.service.targetPort }}
+
+###############################################
+#
+# templates/redis-pvc
+#
+###############################################
+
