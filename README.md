@@ -58,6 +58,6 @@ docker run -d \
   quote-frontend:1000
 ```
 
-docker buildx build --no-cache --platform=linux/amd64,linux/arm64 -t timursamanchi/quote_redis:v666 ./docker/redis_database --push
-docker buildx build --no-cache --platform=linux/amd64,linux/arm64 -t timursamanchi/quote_backend:v666 ./docker/backend_python --push
-docker buildx build --no-cache --platform=linux/amd64,linux/arm64 -t timursamanchi/quote_frontend:v666 ./docker/frontend_nginx --push
+docker buildx build --no-cache -t timursamanchi/quote-redis:v123 ./docker/redis-database --push
+docker buildx build --no-cache -t timursamanchi/quote-backend:v123 ./docker/backend-python --push
+docker buildx build --no-cache -t timursamanchi/quote-frontend:v123 ./docker/frontend-nginx --push

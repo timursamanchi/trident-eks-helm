@@ -1,26 +1,30 @@
-# 07-frontend_deployment.yaml
+# 05-backend-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: quote_frontend
+  name: quote-backend
   namespace: quote-app
   labels:
-    app: quote_frontend
+    app: quote-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: quote_frontend
+      app: quote-backend
   template:
     metadata:
       labels:
-        app: quote_frontend
+        app: quote-backend
     spec:
+      initContainers:
+        - name: wait-for-redis
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z quote-redis 6379; do echo 'waiting for redis'; sleep 1; done"]
       containers:
-        - name: frontend
-          image: timursamanchi/quote_frontend:1000
+        - name: backend
+          image: timursamanchi/quote-backend:v123
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources:
             requests:
               cpu: "100m"
@@ -32,7 +36,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             initialDelaySeconds: 5
             timeoutSeconds: 2
             periodSeconds: 10
@@ -40,7 +44,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             initialDelaySeconds: 10
             timeoutSeconds: 2
             periodSeconds: 15

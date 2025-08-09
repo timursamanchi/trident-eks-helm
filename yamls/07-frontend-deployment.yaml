@@ -1,26 +1,26 @@
-# 03-redis_deployment.yaml
+# 07-frontend_deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: quote_redis
+  name: quote-frontend
   namespace: quote-app
   labels:
-    app: quote_redis
+    app: quote-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: quote_redis
+      app: quote-frontend
   template:
     metadata:
       labels:
-        app: quote_redis
+        app: quote-frontend
     spec:
       containers:
-        - name: redis
-          image: timursamanchi/quote_redis:1000
+        - name: frontend
+          image: timursamanchi/quote-frontend:v123
           ports:
-            - containerPort: 6379
+            - containerPort: 80
           resources:
             requests:
               cpu: "100m"
@@ -30,15 +30,17 @@ spec:
               memory: "512Mi"
           imagePullPolicy: Always
           readinessProbe:
-            tcpSocket:
-              port: 6379
+            httpGet:
+              path: /
+              port: 80
             initialDelaySeconds: 5
             timeoutSeconds: 2
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
-            tcpSocket:
-              port: 6379
+            httpGet:
+              path: /
+              port: 80
             initialDelaySeconds: 10
             timeoutSeconds: 2
             periodSeconds: 15

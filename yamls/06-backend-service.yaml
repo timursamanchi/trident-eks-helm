@@ -1,16 +1,16 @@
-# 06-frontend-service.yaml
+# 06-backend-service.yaml
 apiVersion: v1
 kind: Service
 metadata: 
-  name: quote_frontend
+  name: quote-backend
   namespace: quote-app
   labels:
-    app: quote_frontend
+    app: quote-backend
 spec:
   selector:
-    app: quote_frontend
+    app: quote-backend
   type: ClusterIP
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8080
+      targetPort: 8080
