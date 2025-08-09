@@ -1,0 +1,45 @@
+# 03-redis_deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quote_redis
+  namespace: quote_app
+  labels:
+    app: quote_redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quote_redis
+  template:
+    metadata:
+      labels:
+        app: quote_redis
+    spec:
+      containers:
+        - name: redis
+          image: timursamanchi/quote_redis:1000
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          imagePullPolicy: Always
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 15
+            failureThreshold: 3

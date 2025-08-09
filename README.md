@@ -34,10 +34,10 @@ docker rm -f quote-frontend quote-backend quote-redis
 ## 1️⃣ Start Redis with Preloaded Quotes
 ```
 docker run -d \
-  --name quote-redis \
+  --name quote_redis \
   --network quote-net \
-  -v quote-redis-data:/data \
-  quote-redis:777
+  -v quote-redis_data:/data \
+  quote_redis:1000
 ```
 
 ## 2️⃣ Start Backend
@@ -46,7 +46,7 @@ docker run -d \
   --name quote-backend \
   --network quote-net \
   -p 8080:8080 \
-  quote-backend:777
+  quote-backend:1000
 ```
 
 ## 3️⃣ Start Frontend
@@ -55,5 +55,9 @@ docker run -d \
   --name quote-frontend \
   --network quote-net \
   -p 80:80 \
-  quote-frontend:777
+  quote-frontend:1000
 ```
+
+docker buildx build --no-cache --platform=linux/amd64,linux/arm64 -t timursamanchi/quote_redis:v666 ./docker/redis_database --push
+docker buildx build --no-cache --platform=linux/amd64,linux/arm64 -t timursamanchi/quote_backend:v666 ./docker/backend_python --push
+docker buildx build --no-cache --platform=linux/amd64,linux/arm64 -t timursamanchi/quote_frontend:v666 ./docker/frontend_nginx --push
