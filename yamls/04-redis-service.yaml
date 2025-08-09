@@ -7,7 +7,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: quote_redis
+    app: quote-redis
   ports:
     - port: 6379
       targetPort: 6379

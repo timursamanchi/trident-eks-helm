@@ -1,11 +1,9 @@
-# ingress.yaml
+# 09-ingress-object.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: quote-ingress
   namespace: quote-app
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
@@ -15,13 +13,13 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: quote-frontend-service
+                name: quote-frontend
                 port:
                   number: 80
           - path: /quote
             pathType: Prefix
             backend:
               service:
-                name: quote-backend-service
+                name: quote-backend
                 port:
                   number: 8080
