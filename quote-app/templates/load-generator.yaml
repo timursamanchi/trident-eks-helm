@@ -1,0 +1,40 @@
+###############################################
+#
+# templates/load-generator
+#
+###############################################
+{{- if .Values.loadgen.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quote-app.fullname" . }}-loadgen
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "quote-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: loadgen
+spec:
+  replicas: {{ .Values.loadgen.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "quote-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: loadgen
+  template:
+    metadata:
+      labels:
+        {{- include "quote-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: loadgen
+    spec:
+      containers:
+        - name: busybox
+          image: "{{ .Values.loadgen.image.repository }}:{{ .Values.loadgen.image.tag }}"
+          imagePullPolicy: {{ .Values.loadgen.image.pullPolicy }}
+          command: {{ toJson .Values.loadgen.command }}
+          args: {{ toJson .Values.loadgen.args }}
+          env:
+            - name: TARGET_URL
+              value: "http://{{ include "quote-app.fullname" . }}-backend:{{ .Values.backend.service.port }}{{ .Values.loadgen.path }}"
+            - name: SLEEP_SECS
+              value: {{ .Values.loadgen.sleepSeconds | default "0.05" | quote }}
+          resources:
+            {{- toYaml .Values.loadgen.resources | nindent 12 }}
+{{- end }}

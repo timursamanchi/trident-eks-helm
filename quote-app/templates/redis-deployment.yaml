@@ -59,7 +59,6 @@ spec:
 # templates/redis-service
 #
 ###############################################
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -83,4 +82,23 @@ spec:
 # templates/redis-pvc
 #
 ###############################################
+{{- if and .Values.redis.persistence.enabled (not .Values.redis.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-redis-data" (include "quote-app.fullname" .) }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "quote-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  accessModes:
+    - {{ .Values.redis.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.redis.persistence.size }}
+  {{- if .Values.redis.persistence.storageClassName }}
+  storageClassName: "{{ .Values.redis.persistence.storageClassName }}"
+  {{- end }}
+{{- end }}
 

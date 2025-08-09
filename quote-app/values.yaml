@@ -1,7 +1,3 @@
-# Default values for quote-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 namespace: quote-app
 
 busybox:
@@ -10,92 +6,105 @@ busybox:
   command: ["sleep", "3600"]
 
 redis:
+  replicaCount: 1
+  image:
+    repository: redis
+    tag: "7"
+    pullPolicy: IfNotPresent
+  resources:
+    requests: { cpu: "50m", memory: "64Mi" }
+    limits:   { cpu: "200m", memory: "256Mi" }
+  service:
+    type: ClusterIP
+    port: 6379
+    targetPort: 6379
+  readinessProbe:
+    initialDelaySeconds: 5
+    timeoutSeconds: 2
+    periodSeconds: 10
+    failureThreshold: 3
+  livenessProbe:
+    initialDelaySeconds: 10
+    timeoutSeconds: 2
+    periodSeconds: 20
+    failureThreshold: 3
   persistence:
     enabled: true
-    existingClaim: ""          # Set to existing PVC name to skip creation
+    existingClaim: ""          # set to use an existing PVC
     accessMode: ReadWriteOnce
     size: 1Gi
-    storageClassName: ""       # Empty uses default storage class
-
-backend:
-  image: timursamanchi/quote-backend:helm
-  port: 8080
-  replicaCount: 1
-  resources:
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
+    storageClassName: ""       # default storage class
+    mountPath: /data
 
 frontend:
-  image: timursamanchi/quote-frontend:helm
-  port: 80
   replicaCount: 1
+  image:
+    repository: timursamanchi/quote-frontend
+    tag: helm
+    pullPolicy: IfNotPresent
+  containerPort: 80
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
   resources:
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
+    requests: { cpu: "100m", memory: "128Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  readinessProbe:
+    path: /
+    port: 80
+    initialDelaySeconds: 5
+    timeoutSeconds: 2
+    periodSeconds: 10
+    failureThreshold: 3
+  livenessProbe:
+    path: /
+    port: 80
+    initialDelaySeconds: 10
+    timeoutSeconds: 2
+    periodSeconds: 20
+    failureThreshold: 3
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
+backend:
+  replicaCount: 1
+  image:
+    repository: timursamanchi/quote-backend
+    tag: helm
+    pullPolicy: IfNotPresent
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  resources:
+    requests: { cpu: "100m", memory: "128Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  readinessProbe:
+    path: /quote
+    port: 8080
+    initialDelaySeconds: 5
+    timeoutSeconds: 2
+    periodSeconds: 10
+    failureThreshold: 3
+  livenessProbe:
+    path: /quote
+    port: 8080
+    initialDelaySeconds: 10
+    timeoutSeconds: 2
+    periodSeconds: 20
+    failureThreshold: 3
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 50
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
-image:
-  repository: nginx
-  # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-imagePullSecrets: []
-# This is to override the chart name.
-nameOverride: ""
-fullnameOverride: ""
-
-# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
-service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-  type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
-
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+# Keep if you use the stock Helm ingress template elsewhere; otherwise safe to leave.
 ingress:
   enabled: true
   className: nginx
@@ -110,66 +119,31 @@ ingress:
           pathType: Prefix
   tls: []
 
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+loadgen:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: busybox
+    tag: "1.36"
+    pullPolicy: IfNotPresent
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
-
-
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
-# this bit below is for autoscaling 
-autoscaling:
-  backend:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 5
-    targetCPUUtilizationPercentage: 50
-
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-  frontend:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 50
-
-# targetMemoryUtilizationPercentage: 50 only to test with - in production increase to 80%
+  # Simple, deterministic loop that pounds the backend
+  command: ["/bin/sh", "-c"]
+  args:
+    - |
+      while true; do
+        wget -qO- "$TARGET_URL" >/dev/null
+        sleep ${SLEEP_SECS:-0.05}
+      done
+      
+  # Path on the backend to hit
+  path: /quote
+  # Optional: override sleep via values or --set
+  sleepSeconds: 0.05
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: 50m
+      memory: 32Mi

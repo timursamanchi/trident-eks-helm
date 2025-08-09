@@ -1,62 +1,47 @@
-{{/*
-Expand the name of the chart.
-*/}}
-{{- define "quote-app.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
+{{/* 
+  Generate full name for resources, e.g. "quote-app-backend"
 */}}
 {{- define "quote-app.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
 
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
+{{/* Short chart/app name */}}
+{{- define "quote-app.name" -}}
+{{ .Chart.Name }}
+{{- end -}}
+
+{{/* Chart label (normalize '+' which is illegal in labels) */}}
 {{- define "quote-app.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" }}
+{{- end -}}
 
-{{/*
-Common labels
-*/}}
+{{/* Standard labels for ALL resources */}}
 {{- define "quote-app.labels" -}}
 helm.sh/chart: {{ include "quote-app.chart" . }}
-{{ include "quote-app.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
+app.kubernetes.io/name: {{ include "quote-app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
+{{- end -}}
 
-{{/*
-Selector labels
+{{/* 
+  Selector labels used by Deployments/Services to match Pods.
+  Keep this minimal and STABLE over time.
 */}}
 {{- define "quote-app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "quote-app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
+{{- end -}}
 
-{{/*
-Create the name of the service account to use
-*/}}
+{{/* Optional: service account name helper (use if/when needed) */}}
 {{- define "quote-app.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "quote-app.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
-{{- end }}
+{{- if .Values.serviceAccount.create -}}
+{{ default (printf "%s-sa" (include "quote-app.fullname" .)) .Values.serviceAccount.name }}
+{{- else -}}
+{{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
