@@ -58,6 +58,17 @@ docker run -d \
   quote-frontend:1000
 ```
 
+
+TO ADD  METRICS SERVER
+
+```
+minikube addons enable metrics-server
+kubectl -n kube-system get pods | grep metrics-server
+# wait ~30–60s, then:
+kubectl top nodes
+kubectl -n quote-app top pods
+
+```
 docker buildx build --no-cache -t timursamanchi/quote-redis:v123 ./docker/redis-database --push
 docker buildx build --no-cache -t timursamanchi/quote-backend:v123 ./docker/backend-python --push
 docker buildx build --no-cache -t timursamanchi/quote-frontend:v123 ./docker/frontend-nginx --push

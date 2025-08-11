@@ -1,5 +1,3 @@
-namespace: quote-app
-
 busybox:
   enabled: true
   image: busybox
@@ -104,7 +102,6 @@ backend:
     maxReplicas: 5
     targetCPUUtilizationPercentage: 50
 
-# Keep if you use the stock Helm ingress template elsewhere; otherwise safe to leave.
 ingress:
   enabled: true
   className: nginx
@@ -126,8 +123,6 @@ loadgen:
     repository: busybox
     tag: "1.36"
     pullPolicy: IfNotPresent
-
-  # Simple, deterministic loop that pounds the backend
   command: ["/bin/sh", "-c"]
   args:
     - |
@@ -135,10 +130,7 @@ loadgen:
         wget -qO- "$TARGET_URL" >/dev/null
         sleep ${SLEEP_SECS:-0.05}
       done
-      
-  # Path on the backend to hit
   path: /quote
-  # Optional: override sleep via values or --set
   sleepSeconds: 0.05
   resources:
     requests:
